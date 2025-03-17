@@ -48,3 +48,27 @@ export interface Timeframe {
   value: string;
   label: string;
 }
+
+// Per-Crypto Pair Configuration Types
+export interface CryptoPairConfig {
+  pairId: string;
+  enabled: boolean;
+  commonConfig: CryptoPairCommonConfig;
+  patternConfigs: Record<string, PatternParameterValues>;
+}
+
+export interface CryptoPairCommonConfig {
+  maxAmountPerTrade: number;
+  timeframes: string[];
+  stopLoss: number;
+  takeProfit: number;
+  trailingStop: boolean;
+  trailingStopDistance: number;
+}
+
+export type PatternParameterValues = Record<string, any>;
+
+export interface AppConfig {
+  globalCommonConfig: CommonConfig;
+  cryptoPairConfigs: Record<string, CryptoPairConfig>;
+}
