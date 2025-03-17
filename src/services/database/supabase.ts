@@ -2,15 +2,18 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { AppConfig } from '../../types';
 import { DatabaseProvider, DatabaseError } from './types';
 
-const SUPABASE_URL = 'https://ihdtrwgadryvwvotutev.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImloZHRyd2dhZHJ5dnd2b3R1dGV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIyMDE0NjcsImV4cCI6MjA1Nzc3NzQ2N30.y4CmAlu8aCCm8NL7eldC53EYh29UxtIMzjCCoCgy9gY';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://ihdtrwgadryvwvotutev.supabase.co';
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_KEY;
 
 export class SupabaseProvider implements DatabaseProvider {
   private client: SupabaseClient;
   private initialized: boolean = false;
 
   constructor() {
-    this.client = createClient(SUPABASE_URL, SUPABASE_KEY);
+    if (!SUPABASE_KEY) {
+      console.error('Supabase API key is missing. Please check your environment variables.');
+    }
+    this.client = createClient(SUPABASE_URL, SUPABASE_KEY || '');
   }
 
   async initialize(): Promise<void> {
