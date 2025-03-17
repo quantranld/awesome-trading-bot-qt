@@ -1,10 +1,10 @@
 import React from 'react';
-import { CommonConfig as CommonConfigType, CryptoPair, Timeframe } from '../types';
+import { CommonConfig, CryptoPair, Timeframe } from '../types';
 import { availableCryptoPairs, availableTimeframes } from '../data/commonConfig';
 
 interface CommonConfigProps {
-  config: CommonConfigType;
-  onConfigChange: (config: CommonConfigType) => void;
+  config: CommonConfig;
+  onConfigChange: (config: CommonConfig) => void;
 }
 
 const CommonConfig: React.FC<CommonConfigProps> = ({ config, onConfigChange }) => {
