@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { AppConfig } from '../types';
-import { defaultConfig } from '../data/defaultConfig';
+import { defaultAppConfig } from '../data/defaultConfig';
 import databaseProvider from '../services/database';
 import { useAuth } from './useAuth';
 
 export const useConfig = () => {
-  const [config, setConfig] = useState<AppConfig>(defaultConfig);
+  const [config, setConfig] = useState<AppConfig>(defaultAppConfig);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { user, isAuthenticated } = useAuth();
@@ -31,13 +31,13 @@ export const useConfig = () => {
           setConfig(dbDefaultConfig);
         } else {
           // Use local default config if nothing in database
-          setConfig(defaultConfig);
+          setConfig(defaultAppConfig);
         }
       } catch (err) {
         console.error('Error loading configuration:', err);
         setError(err instanceof Error ? err : new Error('Failed to load configuration'));
         // Still use default config on error
-        setConfig(defaultConfig);
+        setConfig(defaultAppConfig);
       } finally {
         setLoading(false);
       }

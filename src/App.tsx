@@ -1,6 +1,4 @@
-import { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { AppConfig } from './types';
 import Header from './components/Header';
 import CommonConfig from './components/CommonConfig';
 import CryptoPairList from './components/CryptoPairList';
@@ -16,12 +14,12 @@ function App() {
   const { isAuthenticated, loading: authLoading } = useAuth();
   const { 
     config, 
-    updateConfig: setAppConfig, 
-    isLoading, 
-    error, 
-    isDirty,
-    lastSaved,
-    saveConfig
+    setConfig: setAppConfig, 
+    loading: isLoading, 
+    // error, 
+    // isDirty,
+    // lastSaved,
+    // saveConfig
   } = useConfig();
 
   // Ensure we always have a valid config by falling back to defaultAppConfig
