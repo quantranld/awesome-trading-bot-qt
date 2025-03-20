@@ -72,7 +72,7 @@ const CryptoPairList: React.FC<CryptoPairListProps> = ({ appConfig, onAppConfigC
         <CryptoPairConfig
           cryptoPair={selectedPair}
           config={cryptoPairConfigs[selectedPairId]}
-          onConfigChange={(updatedConfig) => handleCryptoPairConfigChange(selectedPairId, updatedConfig)}
+          onConfigChange={(pairId, updatedConfig) => handleCryptoPairConfigChange(pairId, updatedConfig)}
         />
       )}
     </div>
