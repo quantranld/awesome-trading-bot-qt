@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { AppConfig } from './types';
 import Header from './components/Header';
@@ -9,14 +9,13 @@ import { useAuth } from './hooks/useAuth';
 import LoginForm from './components/Auth/LoginForm';
 import ResetPasswordForm from './components/Auth/ResetPasswordForm';
 import SignupForm from './components/Auth/SignupForm';
+import { defaultAppConfig } from './data/defaultConfig';
 import './index.css';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'global' | 'pairs'>('global');
-  const [isOfflineMode, setIsOfflineMode] = useState(false);
   const { isAuthenticated, loading: authLoading } = useAuth();
   const { 
-    config: appConfig, 
+    config, 
     updateConfig: setAppConfig, 
     isLoading, 
     error, 
@@ -25,22 +24,10 @@ function App() {
     saveConfig
   } = useConfig();
 
-  const toggleOfflineMode = () => {
-    setIsOfflineMode(!isOfflineMode);
-  };
+  // Ensure we always have a valid config by falling back to defaultAppConfig
+  const appConfig = config || defaultAppConfig;
 
-  const handleGlobalCommonConfigChange = (updatedCommonConfig: AppConfig['globalCommonConfig']) => {
-    setAppConfig({
-      ...appConfig,
-      globalCommonConfig: updatedCommonConfig
-    });
-  };
-
-  const handleAppConfigChange = (updatedAppConfig: AppConfig) => {
-    setAppConfig(updatedAppConfig);
-  };
-
-  if (authLoading || (isLoading && !isOfflineMode)) {
+  if (authLoading || isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -62,12 +49,17 @@ function App() {
             ) : (
               <>
                 <CommonConfig
-                  commonConfig={appConfig.globalCommonConfig}
-                  onChange={handleGlobalCommonConfigChange}
+                  config={appConfig.globalCommonConfig}
+                  onConfigChange={(updatedCommonConfig) => 
+                    setAppConfig({
+                      ...appConfig,
+                      globalCommonConfig: updatedCommonConfig
+                    })
+                  }
                 />
                 <CryptoPairList
-                  cryptoPairs={appConfig.cryptoPairs}
-                  onChange={handleAppConfigChange}
+                  appConfig={appConfig}
+                  onAppConfigChange={setAppConfig}
                 />
               </>
             )}

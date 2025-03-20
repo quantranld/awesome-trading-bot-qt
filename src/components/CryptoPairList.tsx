@@ -9,17 +9,21 @@ interface CryptoPairListProps {
 }
 
 const CryptoPairList: React.FC<CryptoPairListProps> = ({ appConfig, onAppConfigChange }) => {
-  const [selectedPairId, setSelectedPairId] = useState<string>(
-    // Default to the first enabled pair, or just the first pair if none are enabled
-    Object.values(appConfig.cryptoPairConfigs).find(config => config.enabled)?.pairId || 
-    availableCryptoPairs[0].value
-  );
+  // Ensure cryptoPairConfigs exists with a default empty object
+  const cryptoPairConfigs = appConfig?.cryptoPairConfigs || {};
+  
+  const [selectedPairId, setSelectedPairId] = useState<string>(() => {
+    // Find first enabled pair or default to first available pair
+    const firstEnabledPair = Object.values(cryptoPairConfigs)
+      .find(config => config?.enabled)?.pairId;
+    return firstEnabledPair || availableCryptoPairs[0].value;
+  });
 
   const handleCryptoPairConfigChange = (pairId: string, updatedConfig: CryptoPairConfigType) => {
     onAppConfigChange({
       ...appConfig,
       cryptoPairConfigs: {
-        ...appConfig.cryptoPairConfigs,
+        ...cryptoPairConfigs,
         [pairId]: updatedConfig
       }
     });
@@ -27,8 +31,8 @@ const CryptoPairList: React.FC<CryptoPairListProps> = ({ appConfig, onAppConfigC
 
   // Filter to show only enabled pairs first, then sort alphabetically
   const sortedPairs = [...availableCryptoPairs].sort((a, b) => {
-    const aEnabled = appConfig.cryptoPairConfigs[a.value]?.enabled || false;
-    const bEnabled = appConfig.cryptoPairConfigs[b.value]?.enabled || false;
+    const aEnabled = cryptoPairConfigs[a.value]?.enabled || false;
+    const bEnabled = cryptoPairConfigs[b.value]?.enabled || false;
     
     if (aEnabled && !bEnabled) return -1;
     if (!aEnabled && bEnabled) return 1;
@@ -42,7 +46,7 @@ const CryptoPairList: React.FC<CryptoPairListProps> = ({ appConfig, onAppConfigC
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Crypto Pair Configurations</h2>
         <div className="text-sm text-gray-500">
-          {Object.values(appConfig.cryptoPairConfigs).filter(config => config.enabled).length} of {availableCryptoPairs.length} pairs enabled
+          {Object.values(cryptoPairConfigs).filter(config => config?.enabled).length} of {availableCryptoPairs.length} pairs enabled
         </div>
       </div>
       
@@ -58,7 +62,7 @@ const CryptoPairList: React.FC<CryptoPairListProps> = ({ appConfig, onAppConfigC
         >
           {sortedPairs.map(pair => (
             <option key={pair.value} value={pair.value}>
-              {pair.label} {appConfig.cryptoPairConfigs[pair.value]?.enabled ? '(Enabled)' : '(Disabled)'}
+              {pair.label} {cryptoPairConfigs[pair.value]?.enabled ? '(Enabled)' : '(Disabled)'}
             </option>
           ))}
         </select>
@@ -67,8 +71,8 @@ const CryptoPairList: React.FC<CryptoPairListProps> = ({ appConfig, onAppConfigC
       {selectedPair && (
         <CryptoPairConfig
           cryptoPair={selectedPair}
-          config={appConfig.cryptoPairConfigs[selectedPairId]}
-          onConfigChange={handleCryptoPairConfigChange}
+          config={cryptoPairConfigs[selectedPairId]}
+          onConfigChange={(updatedConfig) => handleCryptoPairConfigChange(selectedPairId, updatedConfig)}
         />
       )}
     </div>

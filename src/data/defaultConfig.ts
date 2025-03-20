@@ -47,7 +47,7 @@ const generateDefaultCryptoPairConfigs = (): Record<string, CryptoPairConfig> =>
 };
 
 // Default global app configuration
-export const defaultAppConfig: AppConfig = {
+const defaultAppConfig: AppConfig = {
   globalCommonConfig: {
     dailyTradeLimit: 5,
     maxAmountPerTrade: 100,
@@ -56,3 +56,5 @@ export const defaultAppConfig: AppConfig = {
   },
   cryptoPairConfigs: generateDefaultCryptoPairConfigs()
 };
+
+export { defaultAppConfig };
