@@ -57,4 +57,4 @@ const defaultAppConfig: AppConfig = {
   cryptoPairConfigs: generateDefaultCryptoPairConfigs()
 };
 
-export { defaultAppConfig };
+export { defaultAppConfig, defaultCryptoPairCommonConfig };

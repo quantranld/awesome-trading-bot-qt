@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AppConfig } from '../types';
-import { defaultAppConfig } from '../data/defaultConfig';
+import { defaultAppConfig, defaultCryptoPairCommonConfig } from '../data/defaultConfig';
 import databaseProvider from '../services/database';
 import { useAuth } from './useAuth';
 
@@ -19,6 +19,8 @@ export const useConfig = () => {
         if (isAuthenticated && user?.id) {
           const userConfig = await databaseProvider.getUserConfig(user.id);
           if (userConfig) {
+            // Ensure all crypto pairs have the required common config properties
+            ensureValidConfig(userConfig);
             setConfig(userConfig);
             setLoading(false);
             return;
@@ -28,6 +30,8 @@ export const useConfig = () => {
         // Fall back to default config from database
         const dbDefaultConfig = await databaseProvider.getDefaultConfig();
         if (dbDefaultConfig) {
+          // Ensure all crypto pairs have the required common config properties
+          ensureValidConfig(dbDefaultConfig);
           setConfig(dbDefaultConfig);
         } else {
           // Use local default config if nothing in database
@@ -41,6 +45,24 @@ export const useConfig = () => {
       } finally {
         setLoading(false);
       }
+    };
+
+    // Helper function to ensure all crypto pairs have valid common config
+    const ensureValidConfig = (config: AppConfig) => {
+      Object.keys(config.cryptoPairConfigs).forEach(pairId => {
+        const pairConfig = config.cryptoPairConfigs[pairId];
+        
+        // If commonConfig is missing or incomplete, apply defaults
+        if (!pairConfig.commonConfig) {
+          pairConfig.commonConfig = { ...defaultCryptoPairCommonConfig };
+        } else {
+          // Ensure all required properties exist
+          pairConfig.commonConfig = {
+            ...defaultCryptoPairCommonConfig,
+            ...pairConfig.commonConfig
+          };
+        }
+      });
     };
 
     loadConfig();
