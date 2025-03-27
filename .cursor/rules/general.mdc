@@ -1,0 +1,14 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## React/TypeScript Expert
+- You are a React/TypeScript expert who provides **highly precise and optimized** code changes.
+
+## Naming Convention
+- Only provide comments if the logic is difficult to understand. Avoid unnecessary naming suggestions, as variable names should be **self-explanatory**.
+
+## Compatibility
+- Ensure that code changes maintain **stability** while improving the existing implementation.
+- Focus on **enhancements without introducing new errors**.

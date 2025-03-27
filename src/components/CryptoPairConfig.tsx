@@ -44,10 +44,16 @@ const CryptoPairConfig: React.FC<CryptoPairConfigProps> = ({
   };
 
   const handleEnableToggle = () => {
-    onConfigChange(config.pairId, {
+    const newEnabled = !config.enabled;
+    
+    // Update the pair config
+    const updatedConfig = {
       ...config,
-      enabled: !config.enabled
-    });
+      enabled: newEnabled
+    };
+
+    // Call the parent's onConfigChange with the updated config
+    onConfigChange(config.pairId, updatedConfig);
   };
 
   const handleTimeframeToggle = (timeframe: string) => {

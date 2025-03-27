@@ -47,13 +47,8 @@ function App() {
             ) : (
               <>
                 <CommonConfig
-                  config={appConfig.globalCommonConfig}
-                  onConfigChange={(updatedCommonConfig) => 
-                    setAppConfig({
-                      ...appConfig,
-                      globalCommonConfig: updatedCommonConfig
-                    })
-                  }
+                  config={appConfig}
+                  onConfigChange={setAppConfig}
                 />
                 <CryptoPairList
                   appConfig={appConfig}

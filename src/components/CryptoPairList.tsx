@@ -20,12 +20,24 @@ const CryptoPairList: React.FC<CryptoPairListProps> = ({ appConfig, onAppConfigC
   });
 
   const handleCryptoPairConfigChange = (pairId: string, updatedConfig: CryptoPairConfigType) => {
+    // Update the pair config
+    const newCryptoPairConfigs = {
+      ...cryptoPairConfigs,
+      [pairId]: updatedConfig
+    };
+
+    // Update the common config's cryptoPairs list
+    const newCommonConfig = {
+      ...appConfig.globalCommonConfig,
+      cryptoPairs: Object.entries(newCryptoPairConfigs)
+        .filter(([_, config]) => config?.enabled)
+        .map(([pairId]) => pairId)
+    };
+
     onAppConfigChange({
       ...appConfig,
-      cryptoPairConfigs: {
-        ...cryptoPairConfigs,
-        [pairId]: updatedConfig
-      }
+      globalCommonConfig: newCommonConfig,
+      cryptoPairConfigs: newCryptoPairConfigs
     });
   };
 

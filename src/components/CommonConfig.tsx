@@ -1,46 +1,65 @@
 import React from 'react';
-import { CommonConfig as CommonConfigType, CryptoPair, Timeframe } from '../types';
+import { CommonConfig as CommonConfigType, CryptoPair, Timeframe, AppConfig } from '../types';
 import { availableCryptoPairs, availableTimeframes } from '../data/commonConfig';
 
 interface CommonConfigProps {
-  config: CommonConfigType;
-  onConfigChange: (config: CommonConfigType) => void;
+  config: AppConfig;
+  onConfigChange: (config: AppConfig) => void;
 }
 
 const CommonConfig: React.FC<CommonConfigProps> = ({ config, onConfigChange }) => {
   const handleDailyTradeLimitChange = (value: number) => {
     onConfigChange({
       ...config,
-      dailyTradeLimit: value
+      globalCommonConfig: {
+        ...config.globalCommonConfig,
+        dailyTradeLimit: value
+      }
     });
   };
 
   const handleMaxAmountChange = (value: number) => {
     onConfigChange({
       ...config,
-      maxAmountPerTrade: value
+      globalCommonConfig: {
+        ...config.globalCommonConfig,
+        maxAmountPerTrade: value
+      }
     });
   };
 
   const handleCryptoPairToggle = (pair: string) => {
-    const newPairs = config.cryptoPairs.includes(pair)
-      ? config.cryptoPairs.filter(p => p !== pair)
-      : [...config.cryptoPairs, pair];
+    const newPairs = config.globalCommonConfig.cryptoPairs.includes(pair)
+      ? config.globalCommonConfig.cryptoPairs.filter(p => p !== pair)
+      : [...config.globalCommonConfig.cryptoPairs, pair];
     
     onConfigChange({
       ...config,
-      cryptoPairs: newPairs
+      globalCommonConfig: {
+        ...config.globalCommonConfig,
+        cryptoPairs: newPairs
+      },
+      cryptoPairConfigs: {
+        ...config.cryptoPairConfigs,
+        [pair]: {
+          ...config.cryptoPairConfigs[pair],
+          enabled: !config.globalCommonConfig.cryptoPairs.includes(pair)
+        }
+      }
     });
   };
 
   const handleTimeframeToggle = (timeframe: string) => {
-    const newTimeframes = config.timeframes.includes(timeframe)
-      ? config.timeframes.filter(t => t !== timeframe)
-      : [...config.timeframes, timeframe];
+    const newTimeframes = config.globalCommonConfig.timeframes.includes(timeframe)
+      ? config.globalCommonConfig.timeframes.filter(t => t !== timeframe)
+      : [...config.globalCommonConfig.timeframes, timeframe];
     
     onConfigChange({
       ...config,
-      timeframes: newTimeframes
+      globalCommonConfig: {
+        ...config.globalCommonConfig,
+        timeframes: newTimeframes
+      }
     });
   };
 
@@ -70,11 +89,11 @@ const CommonConfig: React.FC<CommonConfigProps> = ({ config, onConfigChange }) =
               min={1}
               max={20}
               step={1}
-              value={config.dailyTradeLimit}
+              value={config.globalCommonConfig.dailyTradeLimit}
               onChange={(e) => handleDailyTradeLimitChange(parseInt(e.target.value))}
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
             />
-            <span className="w-12 text-center font-medium">{config.dailyTradeLimit}</span>
+            <span className="w-12 text-center font-medium">{config.globalCommonConfig.dailyTradeLimit}</span>
           </div>
         </div>
 
@@ -88,11 +107,11 @@ const CommonConfig: React.FC<CommonConfigProps> = ({ config, onConfigChange }) =
               min={10}
               max={1000}
               step={10}
-              value={config.maxAmountPerTrade}
+              value={config.globalCommonConfig.maxAmountPerTrade}
               onChange={(e) => handleMaxAmountChange(parseInt(e.target.value))}
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
             />
-            <span className="w-16 text-center font-medium">{config.maxAmountPerTrade}</span>
+            <span className="w-16 text-center font-medium">{config.globalCommonConfig.maxAmountPerTrade}</span>
           </div>
         </div>
 
@@ -106,7 +125,7 @@ const CommonConfig: React.FC<CommonConfigProps> = ({ config, onConfigChange }) =
                 <input
                   type="checkbox"
                   id={`pair-${pair.value}`}
-                  checked={config.cryptoPairs.includes(pair.value)}
+                  checked={config.globalCommonConfig.cryptoPairs.includes(pair.value)}
                   onChange={() => handleCryptoPairToggle(pair.value)}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
@@ -131,7 +150,7 @@ const CommonConfig: React.FC<CommonConfigProps> = ({ config, onConfigChange }) =
                 key={timeframe.value}
                 onClick={() => handleTimeframeToggle(timeframe.value)}
                 className={`px-3 py-1 text-sm rounded-full ${
-                  config.timeframes.includes(timeframe.value)
+                  config.globalCommonConfig.timeframes.includes(timeframe.value)
                     ? 'bg-blue-100 text-blue-800 border-blue-300'
                     : 'bg-gray-100 text-gray-800 border-gray-300'
                 } border`}
