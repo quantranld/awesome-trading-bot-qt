@@ -1,0 +1,71 @@
+# Project Rules for Awesome Trading Bot QT
+
+## Tech Stack
+- **Framework:** React (with TypeScript)
+- **Build Tool:** Vite
+- **Styling:** Tailwind CSS
+- **Routing:** React Router (`react-router-dom`)
+
+### Trading Logic & Pattern Configuration
+- The core trading logic relies on identifying **candlestick patterns** (defined in `src/data/candlestickPatterns.ts`) in the price data for monitored crypto pairs.
+- Detected patterns, based on their configuration, can trigger buy or sell orders.
+- Each candlestick pattern has specific **parameters** (e.g., thresholds, body size ratios) that can be configured to fine-tune its detection sensitivity.
+- Configuration follows a hierarchical structure:
+    1.  **Global Defaults:** Baseline settings applied if no other configuration exists.
+    2.  **Global User Settings (`globalCommonConfig`):** User-defined settings that apply to all pairs unless overridden (e.g., global trade limits).
+    3.  **Pair-Specific Common Settings (`cryptoPairConfigs[pairId].commonConfig`):** Settings like stop-loss, take-profit, or max amount per trade that override global settings *for a specific pair*.
+    4.  **Pair-Specific Pattern Settings (`cryptoPairConfigs[pairId].patternConfigs`):** Specific parameter values for each candlestick pattern *for a specific pair*. These provide the most granular control, overriding any default pattern parameters.
+- If a specific setting (e.g., a pattern parameter) is not defined at the pair level, the application should ideally fall back to a predefined default for that pattern.
+
+## Core Concepts & Architecture
+
+### State Management
+- The primary application state is managed by the `useConfig` hook located in `src/hooks/useConfig.ts`.
+- This hook provides the main configuration object (`AppConfig`) and a function (`setConfig`) to update it.
+- The `AppConfig` type (defined in `src/types/index.ts`) has two main parts:
+    - `globalCommonConfig`: Holds settings that apply globally.
+    - `cryptoPairConfigs`: A record containing specific configurations for each crypto pair, keyed by the pair ID (e.g., 'BTCUSDT').
+- **Important:** When updating the state using `setConfig`, always treat the state as immutable. Create new objects/arrays instead of modifying existing ones directly.
+  ```typescript
+  // Example of updating a specific crypto pair's config
+  setConfig(prevConfig => ({
+    ...prevConfig,
+    cryptoPairConfigs: {
+      ...prevConfig.cryptoPairConfigs,
+      [pairId]: {
+        ...prevConfig.cryptoPairConfigs[pairId],
+        enabled: newEnabledValue // Update the specific property
+      }
+    }
+  }));
+  ```
+
+### Component Structure
+- Components are primarily functional components (`React.FC`) located in `src/components/`.
+- Configuration data (`AppConfig` or parts of it) is typically passed down as props.
+- Functions to update the configuration (`onConfigChange`, `onAppConfigChange`) are also passed down as props to child components. These functions usually wrap the `setConfig` from `useConfig`.
+- Use Tailwind CSS utility classes for styling directly within the component's JSX.
+
+### Type Definitions
+- Centralized type definitions are located in `src/types/index.ts`.
+- Always use the defined types (e.g., `AppConfig`, `CommonConfig`, `CryptoPairConfig`) for props and state.
+
+### Data Persistence & Services
+- Configuration data is loaded and saved using the `databaseProvider` service (`src/services/database.ts`), which is internally used by the `useConfig` hook.
+- Other services (if any) reside in `src/services/`.
+
+### Authentication
+- Authentication state is managed by the `useAuth` hook (`src/hooks/useAuth.ts`).
+
+## Coding Conventions (Incorporating general.mdc)
+
+### General
+- Provide **highly precise and optimized** code changes.
+- Ensure changes maintain **stability** and enhance existing implementations **without introducing new errors**.
+
+### Naming & Comments
+- Variable and function names should be **self-explanatory**.
+- Only provide comments if the logic is genuinely complex or non-obvious. Avoid redundant comments.
+
+### Commits
+- Use conventional commit messages (e.g., `fix: ...`, `feat: ...`, `refactor: ...`). 
