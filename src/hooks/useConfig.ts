@@ -3,12 +3,50 @@ import { AppConfig } from '../types';
 import { defaultAppConfig, defaultCryptoPairCommonConfig } from '../data/defaultConfig';
 import databaseProvider from '../services/database';
 import { useAuth } from './useAuth';
+import { showToast } from '../components/Toast';
 
 export const useConfig = () => {
   const [config, setConfig] = useState<AppConfig>(defaultAppConfig);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const { user, isAuthenticated } = useAuth();
+
+  // Auto-save effect
+  useEffect(() => {
+    let saveTimeout: NodeJS.Timeout;
+
+    if (isDirty) {
+      saveTimeout = setTimeout(async () => {
+        try {
+          setLoading(true);
+          
+          if (isAuthenticated && user?.id) {
+            await databaseProvider.saveUserConfig(user.id, config);
+          } else {
+            await databaseProvider.saveDefaultConfig(config);
+          }
+          
+          setLastSaved(new Date());
+          setIsDirty(false);
+          showToast.success('Configuration saved successfully');
+        } catch (err) {
+          console.error('Error saving configuration:', err);
+          setError(err instanceof Error ? err : new Error('Failed to save configuration'));
+          showToast.error('Failed to save configuration');
+        } finally {
+          setLoading(false);
+        }
+      }, 1000); // Debounce for 1 second
+    }
+
+    return () => {
+      if (saveTimeout) {
+        clearTimeout(saveTimeout);
+      }
+    };
+  }, [config, isDirty, isAuthenticated, user]);
 
   useEffect(() => {
     const loadConfig = async () => {
@@ -73,25 +111,35 @@ export const useConfig = () => {
       setLoading(true);
       
       if (isAuthenticated && user?.id) {
-        // Save as user config if authenticated
         await databaseProvider.saveUserConfig(user.id, config);
       } else {
-        // Save as default config if not authenticated
         await databaseProvider.saveDefaultConfig(config);
       }
+      
+      setLastSaved(new Date());
+      setIsDirty(false);
+      showToast.success('Configuration saved successfully');
     } catch (err) {
       console.error('Error saving configuration:', err);
       setError(err instanceof Error ? err : new Error('Failed to save configuration'));
+      showToast.error('Failed to save configuration');
     } finally {
       setLoading(false);
     }
   };
 
+  const updateConfig = (newConfig: AppConfig) => {
+    setConfig(newConfig);
+    setIsDirty(true);
+  };
+
   return {
     config,
-    setConfig,
+    setConfig: updateConfig,
     loading,
     error,
+    isDirty,
+    lastSaved,
     saveConfig
   };
 };

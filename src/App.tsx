@@ -8,6 +8,7 @@ import LoginForm from './components/Auth/LoginForm';
 import ResetPasswordForm from './components/Auth/ResetPasswordForm';
 import SignupForm from './components/Auth/SignupForm';
 import { defaultAppConfig } from './data/defaultConfig';
+import { ToastProvider } from './components/Toast';
 import './index.css';
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <ToastProvider />
       <Header />
       <Routes>
         <Route path="/" element={
