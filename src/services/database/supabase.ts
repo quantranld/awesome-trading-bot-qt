@@ -21,7 +21,7 @@ export class SupabaseProvider implements DatabaseProvider {
     
     try {
       // Check connection by making a simple query
-      const { data, error } = await this.client.from('configs').select('*').limit(1);
+      const { error } = await this.client.from('configs').select('*').limit(1);
       
       if (error) {
         if (error.code === '42P01') {

@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useConfig } from './useConfig';
 import { AppConfig } from '../types';
-import databaseProvider from '../services/database';
 
 export const useAutoSave = () => {
-  const { config, setConfig, saveConfig } = useConfig();
+  const { config, saveConfig } = useConfig();
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { CommonConfig as CommonConfigType, CryptoPair, Timeframe, AppConfig } from '../types';
+import { AppConfig } from '../types';
 import { availableCryptoPairs, availableTimeframes } from '../data/commonConfig';
 
 interface CommonConfigProps {
