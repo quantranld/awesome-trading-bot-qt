@@ -1,71 +1,89 @@
-import { Routes, Route } from 'react-router-dom';
-import Header from './components/Header';
-import CommonConfig from './components/CommonConfig';
-import CryptoPairList from './components/CryptoPairList';
-import { useConfig } from './hooks/useConfig';
-import { useAuth } from './hooks/useAuth';
-import LoginForm from './components/Auth/LoginForm';
-import ResetPasswordForm from './components/Auth/ResetPasswordForm';
-import SignupForm from './components/Auth/SignupForm';
-import { defaultAppConfig } from './data/defaultConfig';
-import { ToastProvider } from './components/Toast';
-import './index.css';
+import { Routes, Route } from "react-router-dom";
+import Header from "./components/Header";
+import CommonConfig from "./components/CommonConfig";
+import CryptoPairList from "./components/CryptoPairList";
+import { useConfig } from "./hooks/useConfig";
+import { useAuth } from "./hooks/useAuth";
+import LoginForm from "./components/Auth/LoginForm";
+import ResetPasswordForm from "./components/Auth/ResetPasswordForm";
+import SignupForm from "./components/Auth/SignupForm";
+import { defaultAppConfig } from "./data/defaultConfig";
+import { ToastProvider } from "./components/Toast";
+import "./index.css";
+import AutoSaveStatus from "./components/AutoSaveStatus";
+import GlobalSpinner from "./components/GlobalSpinner";
+import { SpinnerProvider, useSpinner } from "./contexts/SpinnerContext";
+import { useEffect } from "react";
 
-function App() {
-  const { isAuthenticated, loading: authLoading } = useAuth();
-  const { 
-    config, 
-    setConfig: setAppConfig, 
-    loading: isLoading, 
-    // error, 
-    // isDirty,
-    // lastSaved,
-    // saveConfig
-  } = useConfig();
-
-  // Ensure we always have a valid config by falling back to defaultAppConfig
-  const appConfig = config || defaultAppConfig;
-
-  if (authLoading || isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+function AppContent() {
+  const { isAuthenticated } = useAuth();
+  const { config, setConfig: setAppConfig } = useConfig();
+  const appConfig = config || defaultAppConfig; // Ensure valid config
 
   return (
     <div className="min-h-screen bg-gray-50">
       <ToastProvider />
       <Header />
       <Routes>
-        <Route path="/" element={
-          <div className="container mx-auto px-4 py-8">
-            {!isAuthenticated ? (
-              <LoginForm />
-            ) : (
-              <>
-                <CommonConfig
-                  config={appConfig}
-                  onConfigChange={setAppConfig}
-                />
-                <CryptoPairList
-                  appConfig={appConfig}
-                  onAppConfigChange={setAppConfig}
-                />
-              </>
-            )}
-          </div>
-        } />
+        <Route
+          path="/"
+          element={ (
+            <div className="container mx-auto px-4 py-8">
+              {!isAuthenticated ? (
+                <LoginForm />
+              ) : (
+                <>
+                  <CommonConfig
+                    config={appConfig}
+                    onConfigChange={setAppConfig}
+                  />
+                  <CryptoPairList
+                    appConfig={appConfig}
+                    onAppConfigChange={setAppConfig}
+                  />
+                </>
+              )}
+            </div>
+           )}
+        />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/signup" element={<SignupForm />} />
         <Route path="/reset-password" element={<ResetPasswordForm />} />
       </Routes>
+      <AutoSaveStatus />
     </div>
   );
 }
 
-export default App;
+function App() {
+  const { loading: authLoading } = useAuth();
+  const { loading: configLoading } = useConfig();
+  const { showSpinner, hideSpinner } = useSpinner();
+
+  useEffect(() => {
+    if (authLoading || configLoading) {
+      showSpinner();
+    } else {
+      hideSpinner();
+    }
+  }, [authLoading, configLoading, showSpinner, hideSpinner]);
+
+  return (
+    <>
+      <GlobalSpinner /> 
+      <AppContent />
+    </>
+  );
+}
+
+// Wrap the main App component with the provider
+function RootApp() {
+  return (
+    <SpinnerProvider>
+      <App />
+    </SpinnerProvider>
+  );
+}
+
+// export default App;
+export default RootApp;

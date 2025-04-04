@@ -3,7 +3,7 @@ import { useConfig } from './useConfig';
 import { AppConfig } from '../types';
 
 export const useAutoSave = () => {
-  const { config, saveConfig } = useConfig();
+  const { config, saveConfig, isDirty } = useConfig();
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -12,7 +12,7 @@ export const useAutoSave = () => {
   useEffect(() => {
     let isMounted = true;
     const saveTimeout = setTimeout(async () => {
-      if (isMounted) {
+      if (isMounted && isDirty) {
         try {
           setIsSaving(true);
           setSaveError(null);
@@ -48,7 +48,7 @@ export const useAutoSave = () => {
       isMounted = false;
       clearTimeout(saveTimeout);
     };
-  }, [config, saveConfig]);
+  }, [config, saveConfig, isDirty]);
 
   // Config integrity validation
   const validateConfigIntegrity = (config: AppConfig): boolean => {
